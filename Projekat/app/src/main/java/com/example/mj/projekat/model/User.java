@@ -13,6 +13,7 @@ public class User {
     private String password;
     private List<Post> posts;
     private List<Comment> comments;
+    private List<Integer> likedPosts;
 
     public User()
     {
@@ -38,6 +39,14 @@ public class User {
         this.name = name;
         this.username = username;
         this.password = password;
+    }
+
+    public List<Integer> getLikedPosts() {
+        return likedPosts;
+    }
+
+    public void setLikedPosts(List<Integer> likedPosts) {
+        this.likedPosts = likedPosts;
     }
 
     public int getId() {

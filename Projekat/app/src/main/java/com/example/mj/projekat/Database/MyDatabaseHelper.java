@@ -22,11 +22,13 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         UsersDb.onCreate(db);
+        PostDb.onCreate(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         UsersDb.onUpgrade(db, oldVersion, newVersion);
+        PostDb.onUpgrade(db,oldVersion,newVersion);
     }
 
 }

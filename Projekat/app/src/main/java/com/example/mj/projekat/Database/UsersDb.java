@@ -15,14 +15,14 @@ public class UsersDb {
     private static final String LOG_TAG = "UsersDb";
     public static final String SQLITE_TABLE = "Users";
 
-    private static final String DATABASE_CREATE ="CREATE TABLE if not exists "+SQLITE_TABLE;
-            /*"CREATE TABLE if not exists " + SQLITE_TABLE + " (" +
+    private static final String DATABASE_CREATE =
+            "CREATE TABLE if not exists " + SQLITE_TABLE + " (" +
                     KEY_ROWID + " integer PRIMARY KEY autoincrement," +
                     KEY_NAME + "," +
                     KEY_PHOTO + "," +
                     KEY_USERNAME + "," +
                     KEY_PASSWORD + "," +
-                    " UNIQUE (" + KEY_USERNAME +"));"*/;
+                    " UNIQUE (" + KEY_USERNAME +"));";
 
     public static void onCreate(SQLiteDatabase db) {
         Log.w(LOG_TAG, DATABASE_CREATE);

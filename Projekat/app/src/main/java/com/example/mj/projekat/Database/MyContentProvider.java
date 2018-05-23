@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.example.mj.projekat.model.Post;
+
 public class MyContentProvider extends ContentProvider {
 
     private MyDatabaseHelper dbHelper;
@@ -24,6 +26,8 @@ public class MyContentProvider extends ContentProvider {
     // create content URIs from the authority by appending path to database table
     public static final Uri CONTENT_URI =
             Uri.parse("content://" + AUTHORITY + "/users");
+    public static final Uri CONTENT_URI2 =
+            Uri.parse("content://" + AUTHORITY + "/posts");
 
     // a content URI pattern matches content URIs using wildcard characters:
     // *: Matches a string of any valid characters of any length.
@@ -33,6 +37,8 @@ public class MyContentProvider extends ContentProvider {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(AUTHORITY, "users", ALL_USERS);
         uriMatcher.addURI(AUTHORITY, "users/#", SINGLE_USER);
+        uriMatcher.addURI(AUTHORITY, "posts", 10);
+        uriMatcher.addURI(AUTHORITY, "posts/#", 11);
     }
 
     // system calls onCreate() when it starts up the provider.
@@ -67,14 +73,17 @@ public class MyContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         switch (uriMatcher.match(uri)) {
             case ALL_USERS:
-                //do nothing
-                break;
+                long id = db.insert(UsersDb.SQLITE_TABLE, null, values);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return Uri.parse(CONTENT_URI + "/" + id);
+            case 10:
+                long id2 = db.insert(PostDb.SQLITE_TABLE, null, values);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return Uri.parse(CONTENT_URI2 + "/" + id2);
             default:
                 throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
-        long id = db.insert(UsersDb.SQLITE_TABLE, null, values);
-        getContext().getContentResolver().notifyChange(uri, null);
-        return Uri.parse(CONTENT_URI + "/" + id);
+
     }
 
     // The query() method must return a Cursor object, or if it fails,
@@ -89,22 +98,29 @@ public class MyContentProvider extends ContentProvider {
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-        queryBuilder.setTables(UsersDb.SQLITE_TABLE);
+
+        Cursor cursor = null;
 
         switch (uriMatcher.match(uri)) {
             case ALL_USERS:
-                //do nothing
+                queryBuilder.setTables(UsersDb.SQLITE_TABLE);
+                cursor = queryBuilder.query(db, projection, selection,
+                        selectionArgs, null, null, sortOrder);
                 break;
             case SINGLE_USER:
                 String id = uri.getPathSegments().get(1);
                 queryBuilder.appendWhere(UsersDb.KEY_ROWID + "=" + id);
                 break;
+            case 10:
+                queryBuilder.setTables(PostDb.SQLITE_TABLE);
+                cursor = queryBuilder.query(db, projection, selection,
+                        selectionArgs, null, null, sortOrder);
+                break;
+            case 11:
+                break;
             default:
                 throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
-
-        Cursor cursor = queryBuilder.query(db, projection, selection,
-                selectionArgs, null, null, sortOrder);
         return cursor;
 
     }
@@ -142,21 +158,31 @@ public class MyContentProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        int updateCount = 0;
         switch (uriMatcher.match(uri)) {
             case ALL_USERS:
-                //do nothing
-                break;
+                updateCount = db.update(UsersDb.SQLITE_TABLE, values, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return updateCount;
             case SINGLE_USER:
                 String id = uri.getPathSegments().get(1);
                 selection = UsersDb.KEY_ROWID + "=" + id
                         + (!TextUtils.isEmpty(selection) ?
                         " AND (" + selection + ')' : "");
                 break;
+            case 10:
+                updateCount = db.update(PostDb.SQLITE_TABLE, values, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return updateCount;
+            case 11:
+                String id2 = uri.getPathSegments().get(1);
+                selection = PostDb.KEY_ROWID + "=" + id2;
+                updateCount = db.update(PostDb.SQLITE_TABLE, values, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                break;
             default:
                 throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
-        int updateCount = db.update(UsersDb.SQLITE_TABLE, values, selection, selectionArgs);
-        getContext().getContentResolver().notifyChange(uri, null);
         return updateCount;
     }
 

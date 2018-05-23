@@ -13,13 +13,22 @@ public class Post {
     private String title;
     private String description;
     private Bitmap photo;
-    private User author;
-    private Date date;
-    private Location location;
+    private String author;
+    private String date;
+    private String location;
     private List<Tag> tags;
     private List<Comment> comments;
     private int likes;
     private int dislikes;
+
+    public  Post (String title,String description,Bitmap photo)
+    {
+        this.title = title;
+        this.description = description;
+        this.photo = photo;
+    }
+
+    public Post(){};
 
     public Post(int id, String title, String description, Bitmap photo, int likes, int dislikes) {
         this.id = id;
@@ -30,15 +39,14 @@ public class Post {
         this.dislikes = dislikes;
     }
 
-    public Post(int id, String title, String description, Bitmap photo, User author, Date date, List<Tag> tags, List<Comment> comments, int likes, int dislikes) {
+    public Post(int id, String title, String description, Bitmap photo, String author, String date, String location, int likes, int dislikes) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.photo = photo;
         this.author = author;
         this.date = date;
-        this.tags = tags;
-        this.comments = comments;
+        this.location = location;
         this.likes = likes;
         this.dislikes = dislikes;
     }
@@ -75,27 +83,27 @@ public class Post {
         this.photo = photo;
     }
 
-    public User getAuthor() {
+    public String getAuthor() {
         return author;
     }
 
-    public void setAuthor(User author) {
+    public void setAuthor(String author) {
         this.author = author;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
-    public Location getLocation() {
+    public String getLocation() {
         return location;
     }
 
-    public void setLocation(Location location) {
+    public void setLocation(String location) {
         this.location = location;
     }
 

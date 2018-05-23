@@ -9,7 +9,7 @@
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -18,66 +18,105 @@
             android:background="#1a1aff"
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
 
-        <TextView
-            android:id="@+id/titleTV"
+        <ScrollView
+            android:layout_marginTop="58dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="70dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp"
-            android:textAlignment="center"
-            android:textColor="#000000"
-            android:textSize="20dp" />
+            android:layout_height="match_parent">
 
-        <TextView
-        android:id="@+id/info"
-        android:layout_width="240dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="110dp"
-        android:textSize="8dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/titleTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_gravity="left"
+                    android:textColor="#000000"
+                    android:textSize="20dp"
+                    android:textStyle="bold"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:weightSum="2">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                        <TextView
+                            android:id="@+id/info"
+                            android:layout_weight="1"
+                            android:layout_marginLeft="10dp"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:textSize="8dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="right">
+                        <Button
+                            android:textColor="#0000ff"
+                            android:background="#DDD"
+                            android:id="@+id/likeButton"
+                            android:layout_width="60dp"
+                            android:layout_height="30dp"
+                            android:textSize="6dp"
+                            android:layout_marginRight="10dp"/>
+                        <Button
+                            android:textColor="#F00000"
+                            android:background="#DDD"
+                            android:id="@+id/dislikeButton"
+                            android:layout_width="60dp"
+                            android:layout_height="30dp"
+                            android:textSize="6dp"
+                            android:layout_marginRight="10dp"/>
+                    </LinearLayout>
 
-        <TextView
-        android:id="@+id/info2"
-        android:layout_width="113dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="250dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="110dp"
-        android:textSize="8dp"/>
+                </LinearLayout>
 
-        <ImageView
-            android:id="@+id/slika"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="140dp"/>
+                <ImageView
+                    android:id="@+id/slika"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"/>
 
-        <TextView
-            android:id="@+id/sadrzaj"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="350dp"
-            android:textSize="16dp" />
+                <TextView
+                    android:id="@+id/sadrzaj"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:textSize="16dp"/>
 
-        <TextView
-            android:id="@+id/tagovi"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="380dp"/>
-        <TextView
-            android:id="@+id/komentari"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="410dp"/>
+                <TextView
+                    android:id="@+id/tagovi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"/>
+                <TextView
+                    android:id="@+id/komentari"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"/>
+
+            </LinearLayout>
+
+        </ScrollView>
 
     </FrameLayout>
 

@@ -6,9 +6,5 @@
             android:id="@+id/add"
             android:title="Add"
             app:showAsAction="never"/>
-        <item
-            android:id="@+id/settings"
-            android:title="Settings"
-            app:showAsAction="never"/>
     </group>
 </menu>

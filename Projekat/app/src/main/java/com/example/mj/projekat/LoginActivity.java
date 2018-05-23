@@ -1,13 +1,11 @@
 package com.example.mj.projekat;
 
 import android.app.LoaderManager;
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -15,10 +13,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
@@ -33,12 +29,12 @@ import java.util.ArrayList;
 public class LoginActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private SimpleCursorAdapter dataAdapter;
 
-    SQLiteDatabase db;
+    MyDatabaseHelper mdh = new MyDatabaseHelper(this);
+
     Button _btnLogin;
     EditText _txtUName, _txtPass;
     private  String id;
     ArrayList<User> users;
-    MyContentProvider cp;
 
 
     @Override
