@@ -27,11 +27,16 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.example.mj.projekat.Adapter.commentAdapter;
 import com.example.mj.projekat.Adapter.postListAdapter;
+import com.example.mj.projekat.Database.CommentDb;
 import com.example.mj.projekat.Database.MyContentProvider;
 import com.example.mj.projekat.Database.PostDb;
+import com.example.mj.projekat.Database.TagsDb;
 import com.example.mj.projekat.Database.UsersDb;
+import com.example.mj.projekat.model.Comment;
 import com.example.mj.projekat.model.Post;
+import com.example.mj.projekat.model.Tag;
 import com.example.mj.projekat.model.User;
 
 import java.io.ByteArrayOutputStream;
@@ -46,6 +51,7 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
     private ListView lvPosts;
     private postListAdapter adapter;
     private List<Post> posts;
+    ArrayList<Tag> tags= new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +69,7 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
 
         byte imageInByte[] = post.getByteArray("photoinbyte");
         Bitmap image = BitmapFactory.decodeByteArray(imageInByte,0,imageInByte.length);
+
 
 
         lvPosts = (ListView)findViewById(R.id.listView);
@@ -89,6 +96,19 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
             }while (c.moveToNext());
         }
 
+        Cursor cu = getContentResolver().query(MyContentProvider.CONTENT_URI3,null,null,null,null);
+
+        if(cu.moveToFirst())
+        {
+            do{
+                Tag t = new Tag();
+                t.setId(cu.getInt(cu.getColumnIndex(TagsDb.KEY_ROWID)));
+                t.setName(cu.getString(cu.getColumnIndex(TagsDb.KEY_NAME)));
+                t.setPosts(cu.getInt(cu.getColumnIndex(TagsDb.KEY_POST)));
+                tags.add(t);
+            }while (cu.moveToNext());
+        }
+
         adapter = new postListAdapter(getApplicationContext(),posts);
 
         lvPosts.setAdapter(adapter);
@@ -101,7 +121,17 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
                 post.getPhoto().compress(Bitmap.CompressFormat.JPEG,100,stream);
                 byte imageInByte[] = stream.toByteArray();
 
+                ArrayList<String> tagoviPosta = new ArrayList<>();
+
                 Intent i = new Intent(PostsActivity.this,ReadPostActivity.class);
+                for(Tag t : tags)
+                {
+                    if(t.getPosts()==post.getId())
+                    {
+                        tagoviPosta.add(t.getName());
+                    }
+                }
+                i.putExtra("tagovi",tagoviPosta);
                 i.putExtra("id",post.getId());
                 i.putExtra("photoinbyte",imageInByte);
                 i.putExtra("title",post.getTitle());

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -97,7 +98,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:layout_marginTop="10dp"
-                    android:textSize="16dp"/>
+                    android:textSize="14dp"/>
 
                 <TextView
                     android:id="@+id/tagovi"
@@ -105,15 +106,30 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"/>
-                <TextView
-                    android:id="@+id/komentari"
+                    android:layout_marginTop="10dp"
+                    android:textSize="6dp"/>
+                <Button
+                    android:id="@+id/prikazKomentara"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"/>
+                    android:text="Prikazi sve komentare"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Komentari:"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:textColor="#000" />
+                <ListView
+                    android:layout_marginTop="0dp"
+                    android:id="@+id/listaKomentara"
+                    android:layout_width="match_parent"
+                    android:layout_height="210dp">
 
+                </ListView>
             </LinearLayout>
 
         </ScrollView>

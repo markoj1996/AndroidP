@@ -1,26 +1,30 @@
 package com.example.mj.projekat.model;
 
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 
 import java.util.Date;
 
-public class Comment {
+public class Comment implements Comparable {
 
     private int id;
     private String title;
     private String description;
-    private User author;
-    private Date date;
-    private Post post;
+    private String author;
+    private String date;
+    private int post;
     private int likes;
     private int dislikes;
 
-    public Comment(int id, String title, String description, User author, Date date, int likes, int dislikes) {
+    public Comment(){}
+
+    public Comment(int id, String title, String description, String author, String date, int post, int likes, int dislikes) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.author = author;
         this.date = date;
+        this.post = post;
         this.likes = likes;
         this.dislikes = dislikes;
     }
@@ -49,27 +53,27 @@ public class Comment {
         this.description = description;
     }
 
-    public User getAuthor() {
+    public String getAuthor() {
         return author;
     }
 
-    public void setAuthor(User author) {
+    public void setAuthor(String author) {
         this.author = author;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
-    public Post getPost() {
+    public int getPost() {
         return post;
     }
 
-    public void setPost(Post post) {
+    public void setPost(int post) {
         this.post = post;
     }
 
@@ -87,5 +91,11 @@ public class Comment {
 
     public void setDislikes(int dislikes) {
         this.dislikes = dislikes;
+    }
+
+    @Override
+    public int compareTo(@NonNull Object o) {
+        int compareLike = ((Comment)o).getLikes();
+        return compareLike-this.getLikes();
     }
 }

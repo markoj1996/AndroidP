@@ -8,8 +8,8 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.READ_INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_USER_DICTIONARY"/>
-    <uses-permission android:name="android.permission.WRITE_USER_DICTIONARY"/>
+    <uses-permission android:name="android.permission.READ_USER_DICTIONARY" />
+    <uses-permission android:name="android.permission.WRITE_USER_DICTIONARY" />
 
     <application
         android:allowBackup="true"
@@ -31,10 +31,15 @@
         <activity android:name=".CreatePostActivity" />
         <activity android:name=".SignUpActivity" />
 
-        <provider android:name=".Database.MyContentProvider" android:exported="true"
-            android:readPermission="true" android:writePermission="true"
-            android:authorities="com.example.mj.projekat.Database" />
+        <provider
+            android:name=".Database.MyContentProvider"
+            android:authorities="com.example.mj.projekat.Database"
+            android:exported="true"
+            android:readPermission="true"
+            android:writePermission="true" />
 
+        <activity android:name=".CommentActivity" />
+        <activity android:name=".CreateCommentActivity"></activity>
     </application>
 
 </manifest>

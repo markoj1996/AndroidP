@@ -3,6 +3,7 @@ package com.example.mj.projekat;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -19,22 +20,39 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.mj.projekat.Adapter.commentAdapter;
+import com.example.mj.projekat.Database.CommentDb;
 import com.example.mj.projekat.Database.MyContentProvider;
 import com.example.mj.projekat.Database.PostDb;
+import com.example.mj.projekat.Database.UsersDb;
+import com.example.mj.projekat.model.Comment;
 import com.example.mj.projekat.model.Post;
 import com.example.mj.projekat.model.User;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class ReadPostActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
+    ListView lvComment;
+    private commentAdapter adapterC;
+    private List<Comment> komentari;
+    private List<User> users = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_read_post);
+
+        lvComment = (ListView)findViewById(R.id.listaKomentara);
+        Button prikaz = (Button)findViewById(R.id.prikazKomentara);
 
         SharedPreferences sharedPref = getSharedPreferences("loggedInUser",MODE_PRIVATE);
         final String loggedInUser = sharedPref.getString("userName","");
@@ -66,6 +84,31 @@ public class ReadPostActivity extends AppCompatActivity {
         Bitmap image = BitmapFactory.decodeByteArray(imageInByte,0,imageInByte.length);
         final ImageView img = (ImageView)findViewById(R.id.slika);
         img.setImageBitmap(image);
+        final TextView tagovi = (TextView)findViewById(R.id.tagovi);
+        List<String> tagoviLista =(List<String>) getIntent().getSerializableExtra("tagovi");
+        String tagoviPosta = "Tags:";
+        for(String tagName : tagoviLista)
+        {
+            tagoviPosta=tagoviPosta+" "+tagName;
+        }
+        tagovi.setText(tagoviPosta);
+
+        Cursor cu = getContentResolver().query(MyContentProvider.CONTENT_URI,null,null,null,null);
+
+        if(cu.moveToFirst())
+        {
+            do{
+                User u = new User();
+                u.setId(cu.getColumnIndex(UsersDb.KEY_ROWID));
+                u.setName(cu.getString(cu.getColumnIndex(UsersDb.KEY_NAME)));
+                u.setUsername(cu.getString(cu.getColumnIndex(UsersDb.KEY_USERNAME)));
+                u.setPassword(cu.getString(cu.getColumnIndex(UsersDb.KEY_PASSWORD)));
+                byte PhotoInByte[] = cu.getBlob(2);
+                Bitmap sl = BitmapFactory.decodeByteArray(PhotoInByte,0,PhotoInByte.length);
+                u.setPhoto(sl);
+                users.add(u);
+            }while (cu.moveToNext());
+        }
 
         final Post p = new Post();
         p.setId(id);
@@ -77,6 +120,37 @@ public class ReadPostActivity extends AppCompatActivity {
         p.setPhoto(image);
         p.setLikes(likeP);
         p.setDislikes(dislikeP);
+
+        komentari = new ArrayList<>();
+
+        Cursor cc = getContentResolver().query(MyContentProvider.CONTENT_URI4,null,null,null,null);
+
+        if(cc.moveToFirst())
+        {
+            do{
+                Comment com = new Comment();
+                com.setId(cc.getInt(cc.getColumnIndex(CommentDb.KEY_ROWID)));
+                com.setTitle(cc.getString(cc.getColumnIndex(CommentDb.KEY_TITLE)));
+                com.setDescription(cc.getString(cc.getColumnIndex(CommentDb.KEY_DESCRIPTION)));
+                com.setAuthor(cc.getString(cc.getColumnIndex(CommentDb.KEY_AUTHOR)));
+                com.setDate(cc.getString(cc.getColumnIndex(CommentDb.KEY_DATE)));
+                com.setPost(cc.getInt(cc.getColumnIndex(CommentDb.KEY_POST)));
+                com.setLikes(cc.getInt(cc.getColumnIndex(CommentDb.KEY_LIKES)));
+                com.setDislikes(cc.getInt(cc.getColumnIndex(CommentDb.KEY_DISLIKES)));
+
+                if(com.getPost()==p.getId())
+                {
+                    komentari.add(com);
+                }
+            }while (cc.moveToNext());
+        }
+
+        Collections.sort(komentari);
+
+        adapterC = new commentAdapter(getApplicationContext(),komentari,users);
+
+        lvComment.setAdapter(adapterC);
+
 
         like.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,6 +251,15 @@ public class ReadPostActivity extends AppCompatActivity {
                     getContentResolver().update(uri, values, null, null);
 
                 }
+            }
+        });
+
+        prikaz.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(ReadPostActivity.this,CommentActivity.class);
+                i.putExtra("postId",p.getId());
+                startActivity(i);
             }
         });
 

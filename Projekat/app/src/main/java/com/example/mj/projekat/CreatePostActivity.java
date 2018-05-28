@@ -3,7 +3,9 @@ package com.example.mj.projekat;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.net.Uri;
@@ -25,10 +27,18 @@ import android.widget.Toast;
 
 import com.example.mj.projekat.Database.MyContentProvider;
 import com.example.mj.projekat.Database.PostDb;
+import com.example.mj.projekat.Database.TagsDb;
 import com.example.mj.projekat.Database.UsersDb;
+import com.example.mj.projekat.model.Post;
+import com.example.mj.projekat.model.Tag;
+import com.example.mj.projekat.model.User;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 public class CreatePostActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -37,6 +47,8 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     Button btn2;
     EditText txtname, txtuname, txtpass;
     ImageView postImage;
+    ArrayList<Post> posts= new ArrayList<>();
+    ArrayList<Tag> tags= new ArrayList<>();
 
     private DrawerLayout mDrawerLayout;
 
@@ -47,7 +59,42 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
 
         txtname = (EditText) findViewById(R.id.titleTe);
         txtuname = (EditText) findViewById(R.id.DescTe);
+        txtpass = (EditText) findViewById(R.id.TagTe);
         postImage = (ImageView)findViewById(R.id.postImage);
+
+        Cursor c = getContentResolver().query(MyContentProvider.CONTENT_URI2,null,null,null,null);
+
+        if(c.moveToFirst())
+        {
+            do{
+                Post p = new Post();
+                p.setId(c.getInt(c.getColumnIndex(PostDb.KEY_ROWID)));
+                p.setTitle(c.getString(c.getColumnIndex(PostDb.KEY_TITLE)));
+                p.setDescription(c.getString(c.getColumnIndex(PostDb.KEY_DESCRIPTION)));
+                byte PostImageInByte[] = c.getBlob(3);
+                Bitmap Pimage = BitmapFactory.decodeByteArray(PostImageInByte,0,PostImageInByte.length);
+                p.setPhoto(Pimage);
+                p.setAuthor(c.getString(c.getColumnIndex(PostDb.KEY_AUTHOR)));
+                p.setDate(c.getString(c.getColumnIndex(PostDb.KEY_DATE)));
+                p.setLocation(c.getString(c.getColumnIndex(PostDb.KEY_LOCATION)));
+                p.setLikes(c.getInt(c.getColumnIndex(PostDb.KEY_LIKES)));
+                p.setDislikes(c.getInt(c.getColumnIndex(PostDb.KEY_DISLIKES)));
+                posts.add(p);
+            }while (c.moveToNext());
+        }
+
+        Cursor cu = getContentResolver().query(MyContentProvider.CONTENT_URI3,null,null,null,null);
+
+        if(cu.moveToFirst())
+        {
+            do{
+                Tag t = new Tag();
+                t.setId(cu.getInt(cu.getColumnIndex(TagsDb.KEY_ROWID)));
+                t.setName(cu.getString(cu.getColumnIndex(TagsDb.KEY_NAME)));
+                t.setPosts(cu.getInt(cu.getColumnIndex(TagsDb.KEY_POST)));
+                tags.add(t);
+            }while (cu.moveToNext());
+        }
 
         btn2 = (Button) findViewById(R.id.createButton);
         btn2.setOnClickListener(this);
@@ -118,6 +165,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 byte imageInByte[] = stream.toByteArray();
 
                 ContentValues values = new ContentValues();
+                values.put(PostDb.KEY_ROWID,posts.size()+1);
                 values.put(PostDb.KEY_TITLE, myTitle);
                 values.put(PostDb.KEY_DESCRIPTION, myDesc);
                 values.put(PostDb.KEY_PHOTO,imageInByte);
@@ -127,6 +175,24 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 values.put(PostDb.KEY_LIKES,0);
                 values.put(PostDb.KEY_DISLIKES,0);
                 getContentResolver().insert(MyContentProvider.CONTENT_URI2, values);
+
+                String tagovi = txtpass.getText().toString();
+                String[] niz = tagovi.split(" ");
+                List<String> lista = Arrays.asList(niz);
+                int id = tags.size();
+                for(String tag : lista)
+                {
+                    Tag t = new Tag();
+                    t.setId(id+1);
+                    id++;
+                    t.setName(tag);
+                    t.setPosts(posts.size()+1);
+                    ContentValues values2 = new ContentValues();
+                    values2.put(TagsDb.KEY_ROWID,t.getId());
+                    values2.put(TagsDb.KEY_NAME,t.getName());
+                    values2.put(TagsDb.KEY_POST,t.getPosts());
+                    getContentResolver().insert(MyContentProvider.CONTENT_URI3, values2);
+                }
 
                 finish();
                 break;

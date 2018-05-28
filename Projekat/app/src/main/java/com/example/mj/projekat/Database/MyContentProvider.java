@@ -28,6 +28,10 @@ public class MyContentProvider extends ContentProvider {
             Uri.parse("content://" + AUTHORITY + "/users");
     public static final Uri CONTENT_URI2 =
             Uri.parse("content://" + AUTHORITY + "/posts");
+    public static final Uri CONTENT_URI3 =
+            Uri.parse("content://" + AUTHORITY + "/tags");
+    public static final Uri CONTENT_URI4 =
+            Uri.parse("content://" + AUTHORITY + "/comments");
 
     // a content URI pattern matches content URIs using wildcard characters:
     // *: Matches a string of any valid characters of any length.
@@ -39,6 +43,11 @@ public class MyContentProvider extends ContentProvider {
         uriMatcher.addURI(AUTHORITY, "users/#", SINGLE_USER);
         uriMatcher.addURI(AUTHORITY, "posts", 10);
         uriMatcher.addURI(AUTHORITY, "posts/#", 11);
+        uriMatcher.addURI(AUTHORITY, "tags", 20);
+        uriMatcher.addURI(AUTHORITY, "tags/#", 21);
+        uriMatcher.addURI(AUTHORITY, "comments", 30);
+        uriMatcher.addURI(AUTHORITY, "comments/#", 31);
+
     }
 
     // system calls onCreate() when it starts up the provider.
@@ -80,6 +89,14 @@ public class MyContentProvider extends ContentProvider {
                 long id2 = db.insert(PostDb.SQLITE_TABLE, null, values);
                 getContext().getContentResolver().notifyChange(uri, null);
                 return Uri.parse(CONTENT_URI2 + "/" + id2);
+            case 20:
+                long id3 = db.insert(TagsDb.SQLITE_TABLE, null, values);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return Uri.parse(CONTENT_URI3 + "/" + id3);
+            case 30:
+                long id4 = db.insert(CommentDb.SQLITE_TABLE, null, values);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return Uri.parse(CONTENT_URI4 + "/" + id4);
             default:
                 throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
@@ -117,6 +134,15 @@ public class MyContentProvider extends ContentProvider {
                         selectionArgs, null, null, sortOrder);
                 break;
             case 11:
+                break;
+            case 20:
+                queryBuilder.setTables(TagsDb.SQLITE_TABLE);
+                cursor = queryBuilder.query(db, projection, selection,
+                        selectionArgs, null, null, sortOrder);
+                break;
+            case 30:
+                queryBuilder.setTables(CommentDb.SQLITE_TABLE);
+                cursor = queryBuilder.query(db,projection,selection,selectionArgs,null,null,sortOrder);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported URI: " + uri);

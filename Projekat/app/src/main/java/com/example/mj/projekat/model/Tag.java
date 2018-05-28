@@ -6,7 +6,9 @@ public class Tag {
 
     private int id;
     private String name;
-    private List<Post> posts;
+    private int posts;
+
+    public Tag(){}
 
     public Tag(int id, String name) {
         this.id = id;
@@ -29,11 +31,11 @@ public class Tag {
         this.name = name;
     }
 
-    public List<Post> getPosts() {
+    public int getPosts() {
         return posts;
     }
 
-    public void setPosts(List<Post> posts) {
+    public void setPosts(int posts) {
         this.posts = posts;
     }
 }
