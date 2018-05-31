@@ -4,16 +4,17 @@ package com.example.mj.projekat.model;
 import android.graphics.Bitmap;
 import android.location.Location;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class Post {
+public class Post{
 
     private int id;
     private String title;
     private String description;
     private Bitmap photo;
-    private String author;
+    private User author;
     private String date;
     private String location;
     private List<Tag> tags;
@@ -30,26 +31,6 @@ public class Post {
 
     public Post(){};
 
-    public Post(int id, String title, String description, Bitmap photo, int likes, int dislikes) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.photo = photo;
-        this.likes = likes;
-        this.dislikes = dislikes;
-    }
-
-    public Post(int id, String title, String description, Bitmap photo, String author, String date, String location, int likes, int dislikes) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.photo = photo;
-        this.author = author;
-        this.date = date;
-        this.location = location;
-        this.likes = likes;
-        this.dislikes = dislikes;
-    }
 
     public int getId() {
         return id;
@@ -83,11 +64,11 @@ public class Post {
         this.photo = photo;
     }
 
-    public String getAuthor() {
+    public User getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public void setAuthor(User author) {
         this.author = author;
     }
 

@@ -18,6 +18,10 @@
             android:layout_height="?attr/actionBarSize"
             android:background="#1a1aff"
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
+        <ScrollView
+            android:layout_marginTop="58dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -27,7 +31,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="100dp">
+                android:layout_marginTop="40dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -141,6 +145,7 @@
             </LinearLayout>
 
         </LinearLayout>
+        </ScrollView>
 
     </FrameLayout>
 

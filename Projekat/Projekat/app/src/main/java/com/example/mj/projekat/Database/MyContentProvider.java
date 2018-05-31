@@ -43,6 +43,8 @@ public class MyContentProvider extends ContentProvider {
         uriMatcher.addURI(AUTHORITY, "users/#", SINGLE_USER);
         uriMatcher.addURI(AUTHORITY, "posts", 10);
         uriMatcher.addURI(AUTHORITY, "posts/#", 11);
+        uriMatcher.addURI(AUTHORITY, "posts/#/c", 12);
+        uriMatcher.addURI(AUTHORITY, "posts/#/t", 13);
         uriMatcher.addURI(AUTHORITY, "tags", 20);
         uriMatcher.addURI(AUTHORITY, "tags/#", 21);
         uriMatcher.addURI(AUTHORITY, "comments", 30);
@@ -158,10 +160,12 @@ public class MyContentProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
 
+        int deleteCount = 0;
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         switch (uriMatcher.match(uri)) {
             case ALL_USERS:
-                //do nothing
+                deleteCount = db.delete(UsersDb.SQLITE_TABLE, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
                 break;
             case SINGLE_USER:
                 String id = uri.getPathSegments().get(1);
@@ -169,11 +173,43 @@ public class MyContentProvider extends ContentProvider {
                         + (!TextUtils.isEmpty(selection) ?
                         " AND (" + selection + ')' : "");
                 break;
+            case 10:
+                deleteCount = db.delete(PostDb.SQLITE_TABLE, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+            case 11:
+                String id1 = uri.getPathSegments().get(1);
+                selection = PostDb.KEY_ROWID + "=" + id1;
+                deleteCount = db.delete(PostDb.SQLITE_TABLE, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                break;
+            case 12:
+                String id14 = uri.getPathSegments().get(1);
+                selection = CommentDb.KEY_POST + "=" + id14;
+                deleteCount = db.delete(CommentDb.SQLITE_TABLE, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                break;
+            case 13:
+                String id15 = uri.getPathSegments().get(1);
+                selection = TagsDb.KEY_POST + "=" + id15;
+                deleteCount = db.delete(TagsDb.SQLITE_TABLE, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                break;
+            case 21:
+                String id2 = uri.getPathSegments().get(1);
+                selection = TagsDb.KEY_ROWID + "=" + id2;
+                deleteCount = db.delete(TagsDb.SQLITE_TABLE, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                break;
+            case 31:
+                String id3 = uri.getPathSegments().get(1);
+                selection = CommentDb.KEY_ROWID + "=" + id3;
+                deleteCount = db.delete(CommentDb.SQLITE_TABLE, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                break;
             default:
                 throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
-        int deleteCount = db.delete(UsersDb.SQLITE_TABLE, selection, selectionArgs);
-        getContext().getContentResolver().notifyChange(uri, null);
+
         return deleteCount;
     }
 
@@ -204,6 +240,16 @@ public class MyContentProvider extends ContentProvider {
                 String id2 = uri.getPathSegments().get(1);
                 selection = PostDb.KEY_ROWID + "=" + id2;
                 updateCount = db.update(PostDb.SQLITE_TABLE, values, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                break;
+            case 30:
+                updateCount = db.update(CommentDb.SQLITE_TABLE, values, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return updateCount;
+            case 31:
+                String id3 = uri.getPathSegments().get(1);
+                selection = CommentDb.KEY_ROWID + "=" + id3;
+                updateCount = db.update(CommentDb.SQLITE_TABLE, values, selection, selectionArgs);
                 getContext().getContentResolver().notifyChange(uri, null);
                 break;
             default:

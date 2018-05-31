@@ -91,6 +91,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
                         Intent i = new Intent(LoginActivity.this,PostsActivity.class);
                         i.putExtra("photoinbyte",imageInByte);
                         startActivity(i);
+                        onBackPressed();
                         break;
                     }
                     m="Pogresan username ili password";

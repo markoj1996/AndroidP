@@ -49,6 +49,10 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     ImageView postImage;
     ArrayList<Post> posts= new ArrayList<>();
     ArrayList<Tag> tags= new ArrayList<>();
+    List<User> users = new ArrayList<>();
+    String mode;
+    Post p;
+    int postId;
 
     private DrawerLayout mDrawerLayout;
 
@@ -57,10 +61,33 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_post);
 
+        if (this.getIntent().getExtras() != null){
+            Bundle bundle = this.getIntent().getExtras();
+            mode = bundle.getString("mode");
+            postId = bundle.getInt("post");
+        }
+
         txtname = (EditText) findViewById(R.id.titleTe);
         txtuname = (EditText) findViewById(R.id.DescTe);
         txtpass = (EditText) findViewById(R.id.TagTe);
         postImage = (ImageView)findViewById(R.id.postImage);
+
+        Cursor cu = getContentResolver().query(MyContentProvider.CONTENT_URI,null,null,null,null);
+
+        if(cu.moveToFirst())
+        {
+            do{
+                User u = new User();
+                u.setId(cu.getColumnIndex(UsersDb.KEY_ROWID));
+                u.setName(cu.getString(cu.getColumnIndex(UsersDb.KEY_NAME)));
+                u.setUsername(cu.getString(cu.getColumnIndex(UsersDb.KEY_USERNAME)));
+                u.setPassword(cu.getString(cu.getColumnIndex(UsersDb.KEY_PASSWORD)));
+                byte PhotoInByte[] = cu.getBlob(2);
+                Bitmap sl = BitmapFactory.decodeByteArray(PhotoInByte,0,PhotoInByte.length);
+                u.setPhoto(sl);
+                users.add(u);
+            }while (cu.moveToNext());
+        }
 
         Cursor c = getContentResolver().query(MyContentProvider.CONTENT_URI2,null,null,null,null);
 
@@ -74,7 +101,14 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 byte PostImageInByte[] = c.getBlob(3);
                 Bitmap Pimage = BitmapFactory.decodeByteArray(PostImageInByte,0,PostImageInByte.length);
                 p.setPhoto(Pimage);
-                p.setAuthor(c.getString(c.getColumnIndex(PostDb.KEY_AUTHOR)));
+                String autorStr = c.getString(c.getColumnIndex(PostDb.KEY_AUTHOR));
+                for(User u : users)
+                {
+                    if(u.getUsername().equals(autorStr))
+                    {
+                        p.setAuthor(u);
+                    }
+                }
                 p.setDate(c.getString(c.getColumnIndex(PostDb.KEY_DATE)));
                 p.setLocation(c.getString(c.getColumnIndex(PostDb.KEY_LOCATION)));
                 p.setLikes(c.getInt(c.getColumnIndex(PostDb.KEY_LIKES)));
@@ -83,17 +117,34 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
             }while (c.moveToNext());
         }
 
-        Cursor cu = getContentResolver().query(MyContentProvider.CONTENT_URI3,null,null,null,null);
+        for(Post po : posts)
+        {
+            if(po.getId()==postId)
+            {
+                p = po;
+                break;
+            }
+        }
+
+        /*Cursor ct = getContentResolver().query(MyContentProvider.CONTENT_URI3,null,null,null,null);
 
         if(cu.moveToFirst())
         {
             do{
                 Tag t = new Tag();
-                t.setId(cu.getInt(cu.getColumnIndex(TagsDb.KEY_ROWID)));
-                t.setName(cu.getString(cu.getColumnIndex(TagsDb.KEY_NAME)));
-                t.setPosts(cu.getInt(cu.getColumnIndex(TagsDb.KEY_POST)));
+                t.setId(ct.getInt(ct.getColumnIndex(TagsDb.KEY_ROWID)));
+                t.setName(ct.getString(ct.getColumnIndex(TagsDb.KEY_NAME)));
+                t.setPosts(ct.getInt(ct.getColumnIndex(TagsDb.KEY_POST)));
                 tags.add(t);
             }while (cu.moveToNext());
+        }*/
+
+        if(mode.equals("update"))
+        {
+            txtname.setText(p.getTitle());
+            txtuname.setText(p.getDescription());
+            postImage.setImageBitmap(p.getPhoto());
+
         }
 
         btn2 = (Button) findViewById(R.id.createButton);
@@ -165,7 +216,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 byte imageInByte[] = stream.toByteArray();
 
                 ContentValues values = new ContentValues();
-                values.put(PostDb.KEY_ROWID,posts.size()+1);
                 values.put(PostDb.KEY_TITLE, myTitle);
                 values.put(PostDb.KEY_DESCRIPTION, myDesc);
                 values.put(PostDb.KEY_PHOTO,imageInByte);
@@ -174,9 +224,16 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 values.put(PostDb.KEY_LOCATION,location);
                 values.put(PostDb.KEY_LIKES,0);
                 values.put(PostDb.KEY_DISLIKES,0);
-                getContentResolver().insert(MyContentProvider.CONTENT_URI2, values);
 
-                String tagovi = txtpass.getText().toString();
+                if(mode.trim().equalsIgnoreCase("add")){
+                    values.put(PostDb.KEY_ROWID,posts.size()+1);
+                    getContentResolver().insert(MyContentProvider.CONTENT_URI2, values);
+                }else {
+                    Uri uri = Uri.parse(MyContentProvider.CONTENT_URI2 + "/" + postId);
+                    getContentResolver().update(uri, values, null, null);
+                }
+
+                /*String tagovi = txtpass.getText().toString();
                 String[] niz = tagovi.split(" ");
                 List<String> lista = Arrays.asList(niz);
                 int id = tags.size();
@@ -191,8 +248,10 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                     values2.put(TagsDb.KEY_ROWID,t.getId());
                     values2.put(TagsDb.KEY_NAME,t.getName());
                     values2.put(TagsDb.KEY_POST,t.getPosts());
-                    getContentResolver().insert(MyContentProvider.CONTENT_URI3, values2);
-                }
+                    if(mode.trim().equalsIgnoreCase("add")) {
+                        getContentResolver().insert(MyContentProvider.CONTENT_URI3, values2);
+                    }
+                }*/
 
                 finish();
                 break;

@@ -52,14 +52,16 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
     private postListAdapter adapter;
     private List<Post> posts;
     ArrayList<Tag> tags= new ArrayList<>();
+    ArrayList<User> users =  new ArrayList<>();
+    String userName;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_posts);
 
-        SharedPreferences sharedPref = getSharedPreferences("loggedInUser",MODE_PRIVATE);
-        String userName = sharedPref.getString("userName","");
+        final SharedPreferences sharedPref = getSharedPreferences("loggedInUser",MODE_PRIVATE);
+        userName = sharedPref.getString("userName","");
 
         Bundle post = getIntent().getExtras();
         if(post==null)
@@ -70,46 +72,13 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
         byte imageInByte[] = post.getByteArray("photoinbyte");
         Bitmap image = BitmapFactory.decodeByteArray(imageInByte,0,imageInByte.length);
 
-
-
         lvPosts = (ListView)findViewById(R.id.listView);
         posts = new ArrayList<>();
+        getUsers();
+        getPosts();
+        getTags();
 
-        Cursor c = getContentResolver().query(MyContentProvider.CONTENT_URI2,null,null,null,null);
-
-        if(c.moveToFirst())
-        {
-            do{
-                Post p = new Post();
-                p.setId(c.getInt(c.getColumnIndex(PostDb.KEY_ROWID)));
-                p.setTitle(c.getString(c.getColumnIndex(PostDb.KEY_TITLE)));
-                p.setDescription(c.getString(c.getColumnIndex(PostDb.KEY_DESCRIPTION)));
-                byte PostImageInByte[] = c.getBlob(3);
-                Bitmap Pimage = BitmapFactory.decodeByteArray(PostImageInByte,0,PostImageInByte.length);
-                p.setPhoto(Pimage);
-                p.setAuthor(c.getString(c.getColumnIndex(PostDb.KEY_AUTHOR)));
-                p.setDate(c.getString(c.getColumnIndex(PostDb.KEY_DATE)));
-                p.setLocation(c.getString(c.getColumnIndex(PostDb.KEY_LOCATION)));
-                p.setLikes(c.getInt(c.getColumnIndex(PostDb.KEY_LIKES)));
-                p.setDislikes(c.getInt(c.getColumnIndex(PostDb.KEY_DISLIKES)));
-                posts.add(p);
-            }while (c.moveToNext());
-        }
-
-        Cursor cu = getContentResolver().query(MyContentProvider.CONTENT_URI3,null,null,null,null);
-
-        if(cu.moveToFirst())
-        {
-            do{
-                Tag t = new Tag();
-                t.setId(cu.getInt(cu.getColumnIndex(TagsDb.KEY_ROWID)));
-                t.setName(cu.getString(cu.getColumnIndex(TagsDb.KEY_NAME)));
-                t.setPosts(cu.getInt(cu.getColumnIndex(TagsDb.KEY_POST)));
-                tags.add(t);
-            }while (cu.moveToNext());
-        }
-
-        adapter = new postListAdapter(getApplicationContext(),posts);
+        adapter = new postListAdapter(PostsActivity.this,posts,userName);
 
         lvPosts.setAdapter(adapter);
 
@@ -136,7 +105,7 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
                 i.putExtra("photoinbyte",imageInByte);
                 i.putExtra("title",post.getTitle());
                 i.putExtra("desc",post.getDescription());
-                i.putExtra("autor" ,post.getAuthor());
+                i.putExtra("autor" ,post.getAuthor().getUsername());
                 i.putExtra("datum",post.getDate());
                 i.putExtra("location",post.getLocation());
                 i.putExtra("likes",post.getLikes());
@@ -180,6 +149,11 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
                                 Intent ii = new Intent(PostsActivity.this, SettingsActivity.class);
                                 startActivity(ii);
                                 return true;
+                            case R.id.logout:
+                                sharedPref.edit().remove("loggedInUser").commit();
+                                Intent il = new Intent(PostsActivity.this,LoginActivity.class);
+                                startActivity(il);
+                                onBackPressed();
                         }
 
                         return true;
@@ -195,12 +169,85 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
                 return true;
             case R.id.add:
                 Intent i = new Intent(PostsActivity.this,CreatePostActivity.class);
+                i.putExtra("mode","add");
                 startActivity(i);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+
+    public Cursor getPosts()
+    {
+        Cursor c = getContentResolver().query(MyContentProvider.CONTENT_URI2,null,null,null,null);
+
+        if(c.moveToFirst())
+        {
+            do{
+                Post p = new Post();
+                p.setId(c.getInt(c.getColumnIndex(PostDb.KEY_ROWID)));
+                p.setTitle(c.getString(c.getColumnIndex(PostDb.KEY_TITLE)));
+                p.setDescription(c.getString(c.getColumnIndex(PostDb.KEY_DESCRIPTION)));
+                byte PostImageInByte[] = c.getBlob(3);
+                Bitmap Pimage = BitmapFactory.decodeByteArray(PostImageInByte,0,PostImageInByte.length);
+                p.setPhoto(Pimage);
+                //p.setAuthor(c.getString(c.getColumnIndex(PostDb.KEY_AUTHOR)));
+                //p.setDate(c.getString(c.getColumnIndex(PostDb.KEY_DATE)));
+                String autorStr = c.getString(c.getColumnIndex(PostDb.KEY_AUTHOR));
+                for(User u : users)
+                {
+                    if(u.getUsername().equals(autorStr))
+                    {
+                        p.setAuthor(u);
+                        break;
+                    }
+                }
+                p.setDate(c.getString(c.getColumnIndex(PostDb.KEY_DATE)));
+                p.setLocation(c.getString(c.getColumnIndex(PostDb.KEY_LOCATION)));
+                p.setLikes(c.getInt(c.getColumnIndex(PostDb.KEY_LIKES)));
+                p.setDislikes(c.getInt(c.getColumnIndex(PostDb.KEY_DISLIKES)));
+                posts.add(p);
+            }while (c.moveToNext());
+        }
+        return c;
+    }
+
+    public Cursor getUsers()
+    {
+        Cursor cu = getContentResolver().query(MyContentProvider.CONTENT_URI,null,null,null,null);
+
+        if(cu.moveToFirst())
+        {
+            do{
+                User u = new User();
+                u.setId(cu.getColumnIndex(UsersDb.KEY_ROWID));
+                u.setName(cu.getString(cu.getColumnIndex(UsersDb.KEY_NAME)));
+                u.setUsername(cu.getString(cu.getColumnIndex(UsersDb.KEY_USERNAME)));
+                u.setPassword(cu.getString(cu.getColumnIndex(UsersDb.KEY_PASSWORD)));
+                byte PhotoInByte[] = cu.getBlob(2);
+                Bitmap sl = BitmapFactory.decodeByteArray(PhotoInByte,0,PhotoInByte.length);
+                u.setPhoto(sl);
+                users.add(u);
+            }while (cu.moveToNext());
+        }
+        return cu;
+    }
+
+    public Cursor getTags()
+    {
+        Cursor ct = getContentResolver().query(MyContentProvider.CONTENT_URI3,null,null,null,null);
+        if(ct.moveToFirst())
+        {
+            do{
+                Tag t = new Tag();
+                t.setId(ct.getInt(ct.getColumnIndex(TagsDb.KEY_ROWID)));
+                t.setName(ct.getString(ct.getColumnIndex(TagsDb.KEY_NAME)));
+                t.setPosts(ct.getInt(ct.getColumnIndex(TagsDb.KEY_POST)));
+                tags.add(t);
+            }while (ct.moveToNext());
+        }
+        return ct;
+    }
 
     @Override
     protected void onStart() {
@@ -210,6 +257,10 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
     @Override
     protected void onRestart() {
         super.onRestart();
+        posts.clear();
+        getPosts();
+        adapter = new postListAdapter(this,posts,userName);
+        lvPosts.setAdapter(adapter);
     }
 
     @Override

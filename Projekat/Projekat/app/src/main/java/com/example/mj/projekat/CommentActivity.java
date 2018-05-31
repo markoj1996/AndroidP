@@ -1,12 +1,14 @@
 package com.example.mj.projekat;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -15,8 +17,11 @@ import com.example.mj.projekat.Database.CommentDb;
 import com.example.mj.projekat.Database.MyContentProvider;
 import com.example.mj.projekat.Database.UsersDb;
 import com.example.mj.projekat.model.Comment;
+import com.example.mj.projekat.model.Post;
+import com.example.mj.projekat.model.Tag;
 import com.example.mj.projekat.model.User;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +31,9 @@ public class CommentActivity extends AppCompatActivity {
     List<User> users = new ArrayList<>();
     commentAdapter adapter;
     Button addCom;
+    int postId;
+    String loggedInUser;
+    ListView lista;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +41,10 @@ public class CommentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_comment);
         addCom = (Button)findViewById(R.id.addCom);
 
-        ListView lista = (ListView)findViewById(R.id.listaKom);
+        SharedPreferences sharedPref = getSharedPreferences("loggedInUser",MODE_PRIVATE);
+        loggedInUser = sharedPref.getString("userName","");
+
+        lista = (ListView)findViewById(R.id.listaKom);
 
         Bundle post = getIntent().getExtras();
         if(post==null)
@@ -41,8 +52,53 @@ public class CommentActivity extends AppCompatActivity {
             return;
         }
 
-        final int postId = post.getInt("postId");
+        postId = post.getInt("postId");
 
+
+
+        Cursor cu = getContentResolver().query(MyContentProvider.CONTENT_URI,null,null,null,null);
+
+        if(cu.moveToFirst())
+        {
+            do{
+                User u = new User();
+                u.setId(cu.getColumnIndex(UsersDb.KEY_ROWID));
+                u.setName(cu.getString(cu.getColumnIndex(UsersDb.KEY_NAME)));
+                u.setUsername(cu.getString(cu.getColumnIndex(UsersDb.KEY_USERNAME)));
+                u.setPassword(cu.getString(cu.getColumnIndex(UsersDb.KEY_PASSWORD)));
+                byte PhotoInByte[] = cu.getBlob(2);
+                Bitmap sl = BitmapFactory.decodeByteArray(PhotoInByte,0,PhotoInByte.length);
+                u.setPhoto(sl);
+                users.add(u);
+            }while (cu.moveToNext());
+        }
+
+        adapter = new commentAdapter(getApplicationContext(),komentari,users,loggedInUser);
+        lista.setAdapter(adapter);
+
+        addCom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent i = new Intent(CommentActivity.this,CreateCommentActivity.class);
+                i.putExtra("postId",postId);
+                startActivity(i);
+            }
+        });
+
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        komentari.clear();
+        getComment();
+        adapter = new commentAdapter(this,komentari,users,loggedInUser);
+        lista.setAdapter(adapter);
+    }
+
+    public Cursor getComment()
+    {
         Cursor cc = getContentResolver().query(MyContentProvider.CONTENT_URI4,null,null,null,null);
 
         if(cc.moveToFirst())
@@ -64,36 +120,6 @@ public class CommentActivity extends AppCompatActivity {
                 }
             }while (cc.moveToNext());
         }
-
-        Cursor cu = getContentResolver().query(MyContentProvider.CONTENT_URI,null,null,null,null);
-
-        if(cu.moveToFirst())
-        {
-            do{
-                User u = new User();
-                u.setId(cu.getColumnIndex(UsersDb.KEY_ROWID));
-                u.setName(cu.getString(cu.getColumnIndex(UsersDb.KEY_NAME)));
-                u.setUsername(cu.getString(cu.getColumnIndex(UsersDb.KEY_USERNAME)));
-                u.setPassword(cu.getString(cu.getColumnIndex(UsersDb.KEY_PASSWORD)));
-                byte PhotoInByte[] = cu.getBlob(2);
-                Bitmap sl = BitmapFactory.decodeByteArray(PhotoInByte,0,PhotoInByte.length);
-                u.setPhoto(sl);
-                users.add(u);
-            }while (cu.moveToNext());
-        }
-
-        adapter = new commentAdapter(getApplicationContext(),komentari,users);
-        lista.setAdapter(adapter);
-
-        addCom.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent i = new Intent(CommentActivity.this,CreateCommentActivity.class);
-                i.putExtra("postId",postId);
-                startActivity(i);
-            }
-        });
-
+        return cc;
     }
 }

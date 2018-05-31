@@ -16,6 +16,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mj.projekat.Adapter.commentAdapter;
+import com.example.mj.projekat.Adapter.postListAdapter;
 import com.example.mj.projekat.Database.CommentDb;
 import com.example.mj.projekat.Database.MyContentProvider;
 import com.example.mj.projekat.Database.PostDb;
@@ -45,6 +47,8 @@ public class ReadPostActivity extends AppCompatActivity {
     private commentAdapter adapterC;
     private List<Comment> komentari;
     private List<User> users = new ArrayList<>();
+    Post p = null;
+    String loggedInUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +58,8 @@ public class ReadPostActivity extends AppCompatActivity {
         lvComment = (ListView)findViewById(R.id.listaKomentara);
         Button prikaz = (Button)findViewById(R.id.prikazKomentara);
 
-        SharedPreferences sharedPref = getSharedPreferences("loggedInUser",MODE_PRIVATE);
-        final String loggedInUser = sharedPref.getString("userName","");
+        final SharedPreferences sharedPref = getSharedPreferences("loggedInUser",MODE_PRIVATE);
+        loggedInUser = sharedPref.getString("userName","");
 
         final Bundle post = getIntent().getExtras();
         if(post==null)
@@ -66,11 +70,11 @@ public class ReadPostActivity extends AppCompatActivity {
         String naslov = post.getString("title");
         final TextView title = (TextView)findViewById(R.id.titleTV);
         title.setText(naslov);
-        String autor = post.getString("autor");
+        String autorStr = post.getString("autor");
         String datum = post.getString("datum");
         String location = post.getString("location");
         final TextView info = (TextView)findViewById(R.id.info);
-        info.setText("Autor: "+autor+"  Datum: "+datum);
+        info.setText("Autor: "+autorStr+"  Datum: "+datum);
         String desc = post.getString("desc");
         final Button like = (Button)findViewById(R.id.likeButton);
         final Button dislike = (Button)findViewById(R.id.dislikeButton);
@@ -85,13 +89,13 @@ public class ReadPostActivity extends AppCompatActivity {
         final ImageView img = (ImageView)findViewById(R.id.slika);
         img.setImageBitmap(image);
         final TextView tagovi = (TextView)findViewById(R.id.tagovi);
-        List<String> tagoviLista =(List<String>) getIntent().getSerializableExtra("tagovi");
+        /*List<String> tagoviLista =(List<String>) getIntent().getSerializableExtra("tagovi");
         String tagoviPosta = "Tags:";
         for(String tagName : tagoviLista)
         {
             tagoviPosta=tagoviPosta+" "+tagName;
         }
-        tagovi.setText(tagoviPosta);
+        tagovi.setText(tagoviPosta);*/
 
         Cursor cu = getContentResolver().query(MyContentProvider.CONTENT_URI,null,null,null,null);
 
@@ -110,11 +114,18 @@ public class ReadPostActivity extends AppCompatActivity {
             }while (cu.moveToNext());
         }
 
-        final Post p = new Post();
+        p = new Post();
         p.setId(id);
         p.setTitle(naslov);
         p.setDescription(desc);
-        p.setAuthor(autor);
+        for(User u : users)
+        {
+            if(u.getUsername().equals(autorStr))
+            {
+                p.setAuthor(u);
+                break;
+            }
+        }
         p.setDate(datum);
         p.setLocation(location);
         p.setPhoto(image);
@@ -123,31 +134,9 @@ public class ReadPostActivity extends AppCompatActivity {
 
         komentari = new ArrayList<>();
 
-        Cursor cc = getContentResolver().query(MyContentProvider.CONTENT_URI4,null,null,null,null);
+        getComment();
 
-        if(cc.moveToFirst())
-        {
-            do{
-                Comment com = new Comment();
-                com.setId(cc.getInt(cc.getColumnIndex(CommentDb.KEY_ROWID)));
-                com.setTitle(cc.getString(cc.getColumnIndex(CommentDb.KEY_TITLE)));
-                com.setDescription(cc.getString(cc.getColumnIndex(CommentDb.KEY_DESCRIPTION)));
-                com.setAuthor(cc.getString(cc.getColumnIndex(CommentDb.KEY_AUTHOR)));
-                com.setDate(cc.getString(cc.getColumnIndex(CommentDb.KEY_DATE)));
-                com.setPost(cc.getInt(cc.getColumnIndex(CommentDb.KEY_POST)));
-                com.setLikes(cc.getInt(cc.getColumnIndex(CommentDb.KEY_LIKES)));
-                com.setDislikes(cc.getInt(cc.getColumnIndex(CommentDb.KEY_DISLIKES)));
-
-                if(com.getPost()==p.getId())
-                {
-                    komentari.add(com);
-                }
-            }while (cc.moveToNext());
-        }
-
-        Collections.sort(komentari);
-
-        adapterC = new commentAdapter(getApplicationContext(),komentari,users);
+        adapterC = new commentAdapter(this,komentari,users,loggedInUser);
 
         lvComment.setAdapter(adapterC);
 
@@ -158,7 +147,7 @@ public class ReadPostActivity extends AppCompatActivity {
                 int dislikeInt = Color.parseColor("#f00000");
                 ColorDrawable cd = (ColorDrawable) dislike.getBackground();
                 int dislikebtnInt = cd.getColor();
-                if(loggedInUser.equals(p.getAuthor()))
+                if(loggedInUser.equals(p.getAuthor().getUsername()))
                 {
                     Toast.makeText(ReadPostActivity.this,"Ne mozete da lajkujete svoju objavu",Toast.LENGTH_SHORT).show();
                 }else
@@ -174,7 +163,7 @@ public class ReadPostActivity extends AppCompatActivity {
                             values.put(PostDb.KEY_TITLE, p.getTitle());
                             values.put(PostDb.KEY_DESCRIPTION, p.getDescription());
                             values.put(PostDb.KEY_PHOTO, imageInByte);
-                            values.put(PostDb.KEY_AUTHOR, p.getAuthor());
+                            values.put(PostDb.KEY_AUTHOR, p.getAuthor().getUsername());
                             values.put(PostDb.KEY_DATE, p.getDate());
                             values.put(PostDb.KEY_LOCATION, p.getLocation());
                             values.put(PostDb.KEY_DISLIKES, p.getDislikes());
@@ -191,7 +180,7 @@ public class ReadPostActivity extends AppCompatActivity {
                         values.put(PostDb.KEY_TITLE, p.getTitle());
                         values.put(PostDb.KEY_DESCRIPTION, p.getDescription());
                         values.put(PostDb.KEY_PHOTO, imageInByte);
-                        values.put(PostDb.KEY_AUTHOR, p.getAuthor());
+                        values.put(PostDb.KEY_AUTHOR, p.getAuthor().getUsername());
                         values.put(PostDb.KEY_DATE, p.getDate());
                         values.put(PostDb.KEY_LOCATION, p.getLocation());
                         values.put(PostDb.KEY_DISLIKES, p.getDislikes());
@@ -225,7 +214,7 @@ public class ReadPostActivity extends AppCompatActivity {
                         values.put(PostDb.KEY_TITLE, p.getTitle());
                         values.put(PostDb.KEY_DESCRIPTION, p.getDescription());
                         values.put(PostDb.KEY_PHOTO, imageInByte);
-                        values.put(PostDb.KEY_AUTHOR, p.getAuthor());
+                        values.put(PostDb.KEY_AUTHOR, p.getAuthor().getUsername());
                         values.put(PostDb.KEY_DATE, p.getDate());
                         values.put(PostDb.KEY_LOCATION, p.getLocation());
                         values.put(PostDb.KEY_DISLIKES, p.getDislikes());
@@ -242,7 +231,7 @@ public class ReadPostActivity extends AppCompatActivity {
                     values.put(PostDb.KEY_TITLE, p.getTitle());
                     values.put(PostDb.KEY_DESCRIPTION, p.getDescription());
                     values.put(PostDb.KEY_PHOTO, imageInByte);
-                    values.put(PostDb.KEY_AUTHOR, p.getAuthor());
+                    values.put(PostDb.KEY_AUTHOR, p.getAuthor().getUsername());
                     values.put(PostDb.KEY_DATE, p.getDate());
                     values.put(PostDb.KEY_LOCATION, p.getLocation());
                     values.put(PostDb.KEY_DISLIKES, p.getDislikes());
@@ -291,6 +280,11 @@ public class ReadPostActivity extends AppCompatActivity {
                                 Intent ii = new Intent(ReadPostActivity.this, SettingsActivity.class);
                                 startActivity(ii);
                                 return true;
+                            case R.id.logout:
+                                sharedPref.edit().remove("loggedInUser").commit();
+                                Intent il = new Intent(ReadPostActivity.this,LoginActivity.class);
+                                startActivity(il);
+                                onBackPressed();
                         }
 
                         return true;
@@ -303,8 +297,68 @@ public class ReadPostActivity extends AppCompatActivity {
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
+            case R.id.update:
+                if(loggedInUser.equals(p.getAuthor().getUsername()))
+                {
+                    Intent i = new Intent(ReadPostActivity.this,CreatePostActivity.class);
+                    i.putExtra("mode","update");
+                    i.putExtra("post",p.getId());
+                    startActivity(i);
+                }
+                else{
+                    Toast.makeText(ReadPostActivity.this,"Ne mozete menjati objavu koju niste napravili!",Toast.LENGTH_SHORT).show();
+                }
+            case R.id.delete:
+                if(loggedInUser.equals(p.getAuthor().getUsername()))
+                {
+                    Uri uri = Uri.parse(MyContentProvider.CONTENT_URI2 + "/" + p.getId());
+                    getContentResolver().delete(uri, null, null);
+                    Uri uri2 = Uri.parse(MyContentProvider.CONTENT_URI2 + "/" + p.getId()+"/"+"c");
+                    getContentResolver().delete(uri2, null, null);
+                    Uri uri3 = Uri.parse(MyContentProvider.CONTENT_URI2 + "/" + p.getId()+"/"+"t");
+                    getContentResolver().delete(uri3, null, null);
+                    finish();
+                }else {
+                    Toast.makeText(ReadPostActivity.this,"Ne mozete obrisati objavu koju niste napravili!",Toast.LENGTH_SHORT).show();
+                }
+
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public Cursor getComment()
+    {
+        Cursor cc = getContentResolver().query(MyContentProvider.CONTENT_URI4,null,null,null,null);
+
+        if(cc.moveToFirst())
+        {
+            do{
+                Comment com = new Comment();
+                com.setId(cc.getInt(cc.getColumnIndex(CommentDb.KEY_ROWID)));
+                com.setTitle(cc.getString(cc.getColumnIndex(CommentDb.KEY_TITLE)));
+                com.setDescription(cc.getString(cc.getColumnIndex(CommentDb.KEY_DESCRIPTION)));
+                com.setAuthor(cc.getString(cc.getColumnIndex(CommentDb.KEY_AUTHOR)));
+                com.setDate(cc.getString(cc.getColumnIndex(CommentDb.KEY_DATE)));
+                com.setPost(cc.getInt(cc.getColumnIndex(CommentDb.KEY_POST)));
+                com.setLikes(cc.getInt(cc.getColumnIndex(CommentDb.KEY_LIKES)));
+                com.setDislikes(cc.getInt(cc.getColumnIndex(CommentDb.KEY_DISLIKES)));
+
+                if(com.getPost()==p.getId())
+                {
+                    komentari.add(com);
+                }
+            }while (cc.moveToNext());
+        }
+
+        Collections.sort(komentari);
+        return cc;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menuu, menu);
+        return true;
     }
 
     @Override
@@ -315,6 +369,10 @@ public class ReadPostActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
+        komentari.clear();
+        getComment();
+        adapterC = new commentAdapter(this,komentari,users,loggedInUser);
+        lvComment.setAdapter(adapterC);
     }
 
     @Override
