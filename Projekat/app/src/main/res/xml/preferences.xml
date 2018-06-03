@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <PreferenceCategory
+        android:title="Sort posts"
+        android:key="sort_settings"/>
+
+    <ListPreference
+        android:key="sortPreferences"
+        android:title="Sort posts: "
+        android:entries="@array/pref_postsSort_entries"
+        android:entryValues="@array/pref_postsSortvalues_entries"
+        android:defaultValue="datum"
+        android:summary="%s"/>
+
+    <PreferenceCategory
+        android:title="Sort comment"
+        android:key="sort_settings"/>
+
+    <ListPreference
+        android:key="sortCommentPreferences"
+        android:title="Sort comment: "
+        android:entries="@array/pref_commSort_entries"
+        android:entryValues="@array/pref_commSortvalues_entries"
+        android:defaultValue="datum"
+        android:summary="%s"/>
+
+    <com.example.mj.projekat.DatePreferences
+        android:key="datePicker"
+        android:title="Datum:"
+        android:defaultValue="06/02/2018"/>
+
+</PreferenceScreen>

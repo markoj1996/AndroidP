@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_postsSort_entries">
+        <item>Sortiraj po datumu</item>
+        <item>Sortiraj po popularnosti</item>
+    </string-array>
+    <string-array name="pref_postsSortvalues_entries">
+        <item>datum</item>
+        <item>popularnost</item>
+    </string-array>
+    <string-array name="pref_commSort_entries">
+        <item>Sortiraj po datumu</item>
+        <item>Sortiraj po popularnosti</item>
+    </string-array>
+    <string-array name="pref_commSortvalues_entries">
+        <item>datum</item>
+        <item>popularnost</item>
+    </string-array>
+</resources>
