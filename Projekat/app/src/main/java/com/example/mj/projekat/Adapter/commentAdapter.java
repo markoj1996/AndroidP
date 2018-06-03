@@ -79,12 +79,12 @@ public class commentAdapter extends BaseAdapter {
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(loggedInUser.equals(mComList.get(position).getAuthor()))
+                if(loggedInUser.equals(mComList.get(position).getAuthor().getUsername()))
                 {
                     Uri uri = Uri.parse(MyContentProvider.CONTENT_URI4 + "/" + mComList.get(position).getId());
                     mContext.getContentResolver().delete(uri, null, null);
                 }else {
-                    Toast.makeText(mContext,"Ne mozete obrisati komentar koju niste napravili!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext,"Ne mozete obrisati komentar koji niste napravili!",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -95,7 +95,7 @@ public class commentAdapter extends BaseAdapter {
                 int dislikeInt = Color.parseColor("#f00000");
                 ColorDrawable cd = (ColorDrawable) dislike.getBackground();
                 int dislikebtnInt = cd.getColor();
-                if(loggedInUser.equals(mComList.get(position).getAuthor()))
+                if(loggedInUser.equals(mComList.get(position).getAuthor().getUsername()))
                 {
 
                 }else
@@ -109,8 +109,8 @@ public class commentAdapter extends BaseAdapter {
                         ContentValues values = new ContentValues();
                         values.put(CommentDb.KEY_ROWID, mComList.get(position).getId());
                         values.put(CommentDb.KEY_TITLE, mComList.get(position).getTitle());
-                        values.put(CommentDb.KEY_AUTHOR, mComList.get(position).getAuthor());
-                        values.put(CommentDb.KEY_DATE, mComList.get(position).getDate());
+                        values.put(CommentDb.KEY_AUTHOR, mComList.get(position).getAuthor().getUsername());
+                        values.put(CommentDb.KEY_DATE, mComList.get(position).getDate().toString());
                         values.put(CommentDb.KEY_POST, mComList.get(position).getPost());
                         values.put(CommentDb.KEY_LIKES, mComList.get(position).getLikes());
                         values.put(CommentDb.KEY_DISLIKES, mComList.get(position).getDislikes());
@@ -124,8 +124,8 @@ public class commentAdapter extends BaseAdapter {
                     ContentValues values = new ContentValues();
                     values.put(CommentDb.KEY_ROWID, mComList.get(position).getId());
                     values.put(CommentDb.KEY_TITLE, mComList.get(position).getTitle());
-                    values.put(CommentDb.KEY_AUTHOR, mComList.get(position).getAuthor());
-                    values.put(CommentDb.KEY_DATE, mComList.get(position).getDate());
+                    values.put(CommentDb.KEY_AUTHOR, mComList.get(position).getAuthor().getUsername());
+                    values.put(CommentDb.KEY_DATE, mComList.get(position).getDate().toString());
                     values.put(CommentDb.KEY_POST, mComList.get(position).getPost());
                     values.put(CommentDb.KEY_LIKES, mComList.get(position).getLikes());
                     values.put(CommentDb.KEY_DISLIKES, mComList.get(position).getDislikes());
@@ -142,7 +142,7 @@ public class commentAdapter extends BaseAdapter {
                 ColorDrawable cd = (ColorDrawable) like.getBackground();
                 int likebtnInt = cd.getColor();
 
-                if(loggedInUser.equals(mComList.get(position).getAuthor()))
+                if(loggedInUser.equals(mComList.get(position).getAuthor().getUsername()))
                 {
 
                 }else {
@@ -154,8 +154,8 @@ public class commentAdapter extends BaseAdapter {
                         ContentValues values = new ContentValues();
                         values.put(CommentDb.KEY_ROWID, mComList.get(position).getId());
                         values.put(CommentDb.KEY_TITLE, mComList.get(position).getTitle());
-                        values.put(CommentDb.KEY_AUTHOR, mComList.get(position).getAuthor());
-                        values.put(CommentDb.KEY_DATE, mComList.get(position).getDate());
+                        values.put(CommentDb.KEY_AUTHOR, mComList.get(position).getAuthor().getUsername());
+                        values.put(CommentDb.KEY_DATE, mComList.get(position).getDate().toString());
                         values.put(CommentDb.KEY_POST, mComList.get(position).getPost());
                         values.put(CommentDb.KEY_LIKES, mComList.get(position).getLikes());
                         values.put(CommentDb.KEY_DISLIKES, mComList.get(position).getDislikes());
@@ -169,8 +169,8 @@ public class commentAdapter extends BaseAdapter {
                     ContentValues values = new ContentValues();
                     values.put(CommentDb.KEY_ROWID, mComList.get(position).getId());
                     values.put(CommentDb.KEY_TITLE, mComList.get(position).getTitle());
-                    values.put(CommentDb.KEY_AUTHOR, mComList.get(position).getAuthor());
-                    values.put(CommentDb.KEY_DATE, mComList.get(position).getDate());
+                    values.put(CommentDb.KEY_AUTHOR, mComList.get(position).getAuthor().getUsername());
+                    values.put(CommentDb.KEY_DATE, mComList.get(position).getDate().toString());
                     values.put(CommentDb.KEY_POST, mComList.get(position).getPost());
                     values.put(CommentDb.KEY_LIKES, mComList.get(position).getLikes());
                     values.put(CommentDb.KEY_DISLIKES, mComList.get(position).getDislikes());
@@ -185,7 +185,7 @@ public class commentAdapter extends BaseAdapter {
         dislike.setText("Dislike: "+"("+mComList.get(position).getDislikes()+")");
         for(User u : mUserList)
         {
-            if(u.getUsername().equals(mComList.get(position).getAuthor()))
+            if(u.getUsername().equals(mComList.get(position).getAuthor().getUsername()))
             {
                 userInfo.setText(u.getUsername());
                 img.setImageBitmap(u.getPhoto());

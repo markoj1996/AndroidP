@@ -10,24 +10,14 @@ public class Comment implements Comparable {
     private int id;
     private String title;
     private String description;
-    private String author;
-    private String date;
+    private User author;
+    private Date date;
     private int post;
     private int likes;
     private int dislikes;
 
     public Comment(){}
 
-    public Comment(int id, String title, String description, String author, String date, int post, int likes, int dislikes) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.author = author;
-        this.date = date;
-        this.post = post;
-        this.likes = likes;
-        this.dislikes = dislikes;
-    }
 
     public int getId() {
         return id;
@@ -53,19 +43,19 @@ public class Comment implements Comparable {
         this.description = description;
     }
 
-    public String getAuthor() {
+    public User getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public void setAuthor(User author) {
         this.author = author;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 

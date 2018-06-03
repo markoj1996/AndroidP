@@ -127,12 +127,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
                 columns,
                 to,
                 0);
-
-        // get reference to the ListView
-        //ListView listView = (ListView) findViewById(R.id.countryList);
-        // Assign adapter to ListView
-        //listView.setAdapter(dataAdapter);
-        //Ensures a loader is initialized and active.
         getLoaderManager().initLoader(0, null, this);
 
     }
@@ -140,6 +134,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
     public void btnSignUpActivity(View view) {
         Intent i = new Intent(this,SignUpActivity.class);
         startActivity(i);
+    }
+
+    @Override
+    public void onBackPressed() {
+
     }
 
     @Override

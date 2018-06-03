@@ -52,11 +52,6 @@ public class SettingsActivity extends PreferenceActivity {
 
     }
 
-    public void convertDate(String datum)
-    {
-
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -75,6 +70,7 @@ public class SettingsActivity extends PreferenceActivity {
         SharedPreferences sharedPref2 = getSharedPreferences("sort",MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref2.edit();
         editor.putString("sort",sort);
+        editor.apply();
 
         ListPreference listPreference2 = (ListPreference)findPreference("sortCommentPreferences");
         String sort2 = listPreference2.getValue();
@@ -99,6 +95,7 @@ public class SettingsActivity extends PreferenceActivity {
         SharedPreferences sharedPref2 = getSharedPreferences("sort",MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref2.edit();
         editor.putString("sort",sort);
+        editor.apply();
 
 
         ListPreference listPreference2 = (ListPreference)findPreference("sortCommentPreferences");

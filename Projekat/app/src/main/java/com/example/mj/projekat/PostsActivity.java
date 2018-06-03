@@ -135,9 +135,13 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
                         tagoviPosta.add(t.getName());
                     }
                 }
+                ByteArrayOutputStream streamU = new ByteArrayOutputStream();
+                post.getAuthor().getPhoto().compress(Bitmap.CompressFormat.JPEG,100,stream);
+                byte imageInByteU[] = streamU.toByteArray();
                 String datum;
                 SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
                 String date = df.format(post.getDate());
+                i.putExtra("imageUser",imageInByteU);
                 i.putExtra("tagovi",tagoviPosta);
                 i.putExtra("id",post.getId());
                 i.putExtra("photoinbyte",imageInByte);
@@ -207,6 +211,17 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
             case R.id.add:
                 Intent i = new Intent(PostsActivity.this,CreatePostActivity.class);
                 i.putExtra("mode","add");
+                byte imageInByte[]=null;
+                for(User u :users)
+                {
+                    if(u.getUsername().equals(userName))
+                    {
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        u.getPhoto().compress(Bitmap.CompressFormat.JPEG,100,stream);
+                        imageInByte = stream.toByteArray();
+                    }
+                }
+                i.putExtra("photoinbyte",imageInByte);
                 startActivity(i);
                 return true;
         }
@@ -308,7 +323,7 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
         tags.clear();
         getTags();
 
-        final SharedPreferences sharedPref2 = getSharedPreferences("sort",MODE_PRIVATE);
+        SharedPreferences sharedPref2 = getSharedPreferences("sort",MODE_PRIVATE);
         sort = sharedPref2.getString("sort","");
 
         SharedPreferences sharedPref3 = getSharedPreferences("datum",MODE_PRIVATE);

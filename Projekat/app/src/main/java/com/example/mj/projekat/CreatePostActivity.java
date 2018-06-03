@@ -33,6 +33,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mj.projekat.Database.MyContentProvider;
@@ -68,6 +69,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     String mode;
     Post p;
     int postId;
+    String userName;
 
     private DrawerLayout mDrawerLayout;
 
@@ -75,6 +77,18 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_post);
+
+        final SharedPreferences sharedPref = getSharedPreferences("loggedInUser",MODE_PRIVATE);
+        userName = sharedPref.getString("userName","");
+
+        Bundle post = getIntent().getExtras();
+        if(post==null)
+        {
+            return;
+        }
+
+        //byte imageInByte[] = post.getByteArray("photoinbyte");
+        //Bitmap image = BitmapFactory.decodeByteArray(imageInByte,0,imageInByte.length);
 
         if (this.getIntent().getExtras() != null) {
             Bundle bundle = this.getIntent().getExtras();
@@ -114,8 +128,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 byte PostImageInByte[] = c.getBlob(3);
                 Bitmap Pimage = BitmapFactory.decodeByteArray(PostImageInByte, 0, PostImageInByte.length);
                 p.setPhoto(Pimage);
-                //p.setAuthor(c.getString(c.getColumnIndex(PostDb.KEY_AUTHOR)));
-                //p.setDate(c.getString(c.getColumnIndex(PostDb.KEY_DATE)));
                 String autorStr = c.getString(c.getColumnIndex(PostDb.KEY_AUTHOR));
                 for (User u : users) {
                     if (u.getUsername().equals(autorStr)) {
@@ -195,8 +207,13 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
 
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
-
         NavigationView navigationView = findViewById(R.id.nav_view);
+        View hView =  navigationView.getHeaderView(0);
+        TextView nav_user = (TextView)hView.findViewById(R.id.loggedInUser);
+        nav_user.setText(userName);
+        ImageView profile = (ImageView)hView.findViewById(R.id.avatar);
+        //profile.setImageBitmap(image);
+
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -283,20 +300,34 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 image.compress(Bitmap.CompressFormat.JPEG,100,stream);
                 byte imageInByte[] = stream.toByteArray();
 
-                ContentValues values = new ContentValues();
-                values.put(PostDb.KEY_TITLE, myTitle);
-                values.put(PostDb.KEY_DESCRIPTION, myDesc);
-                values.put(PostDb.KEY_PHOTO,imageInByte);
-                values.put(PostDb.KEY_AUTHOR,author);
-                values.put(PostDb.KEY_DATE,date);
-                values.put(PostDb.KEY_LOCATION,location);
-                values.put(PostDb.KEY_LIKES,0);
-                values.put(PostDb.KEY_DISLIKES,0);
-
                 if(mode.trim().equalsIgnoreCase("add")){
+                    ContentValues values = new ContentValues();
+                    values.put(PostDb.KEY_TITLE, myTitle);
+                    values.put(PostDb.KEY_DESCRIPTION, myDesc);
+                    values.put(PostDb.KEY_PHOTO,imageInByte);
+                    values.put(PostDb.KEY_AUTHOR,author);
+                    values.put(PostDb.KEY_DATE,date);
+                    values.put(PostDb.KEY_LOCATION,location);
+                    values.put(PostDb.KEY_LIKES,0);
+                    values.put(PostDb.KEY_DISLIKES,0);
                     values.put(PostDb.KEY_ROWID,posts.size()+1);
                     getContentResolver().insert(MyContentProvider.CONTENT_URI2, values);
                 }else {
+                    ContentValues values = new ContentValues();
+                    values.put(PostDb.KEY_TITLE, myTitle);
+                    values.put(PostDb.KEY_DESCRIPTION, myDesc);
+                    values.put(PostDb.KEY_PHOTO,imageInByte);
+                    values.put(PostDb.KEY_AUTHOR,author);
+                    values.put(PostDb.KEY_DATE,date);
+                    values.put(PostDb.KEY_LOCATION,location);
+                    for(Post p : posts)
+                    {
+                        if(p.getId()==postId)
+                        {
+                            values.put(PostDb.KEY_LIKES,p.getLikes());
+                            values.put(PostDb.KEY_DISLIKES,p.getDislikes());
+                        }
+                    }
                     Uri uri = Uri.parse(MyContentProvider.CONTENT_URI2 + "/" + postId);
                     getContentResolver().update(uri, values, null, null);
                 }

@@ -5,18 +5,6 @@ import android.util.Log;
 
 public class PostDb {
 
-    /*private int id;
-    private String title;
-    private String description;
-    private Bitmap photo;
-    private User author;
-    private Date date;
-    private Location location;
-    private List<Tag> tags;
-    private List<Comment> comments;
-    private int likes;
-    private int dislikes;*/
-
     public static final String KEY_ROWID = "_id";
     public static final String KEY_TITLE = "title";
     public static final String KEY_DESCRIPTION = "description";

@@ -74,7 +74,7 @@ public class ReadPostActivity extends AppCompatActivity {
         final TextView title = (TextView)findViewById(R.id.titleTV);
         title.setText(naslov);
         String autorStr = post.getString("autor");
-        String datum = post.getString("datum");
+        final String datum = post.getString("datum");
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
         Date date=null;
         try {
@@ -106,6 +106,9 @@ public class ReadPostActivity extends AppCompatActivity {
             tagoviPosta=tagoviPosta+" "+tagName;
         }
         tagovi.setText(tagoviPosta);
+
+        byte imageU[] = post.getByteArray("imageUser");
+        Bitmap photoU = BitmapFactory.decodeByteArray(imageU,0,imageU.length);
 
         Cursor cu = getContentResolver().query(MyContentProvider.CONTENT_URI,null,null,null,null);
 
@@ -174,7 +177,7 @@ public class ReadPostActivity extends AppCompatActivity {
                             values.put(PostDb.KEY_DESCRIPTION, p.getDescription());
                             values.put(PostDb.KEY_PHOTO, imageInByte);
                             values.put(PostDb.KEY_AUTHOR, p.getAuthor().getUsername());
-                            values.put(PostDb.KEY_DATE, p.getDate().toString());
+                            values.put(PostDb.KEY_DATE, datum);
                             values.put(PostDb.KEY_LOCATION, p.getLocation());
                             values.put(PostDb.KEY_DISLIKES, p.getDislikes());
                             values.put(PostDb.KEY_LIKES, p.getLikes());
@@ -191,7 +194,7 @@ public class ReadPostActivity extends AppCompatActivity {
                         values.put(PostDb.KEY_DESCRIPTION, p.getDescription());
                         values.put(PostDb.KEY_PHOTO, imageInByte);
                         values.put(PostDb.KEY_AUTHOR, p.getAuthor().getUsername());
-                        values.put(PostDb.KEY_DATE, p.getDate().toString());
+                        values.put(PostDb.KEY_DATE, datum);
                         values.put(PostDb.KEY_LOCATION, p.getLocation());
                         values.put(PostDb.KEY_DISLIKES, p.getDislikes());
                         values.put(PostDb.KEY_LIKES, p.getLikes());
@@ -208,7 +211,7 @@ public class ReadPostActivity extends AppCompatActivity {
                 ColorDrawable cd = (ColorDrawable) like.getBackground();
                 int likebtnInt = cd.getColor();
 
-                if(loggedInUser.equals(p.getAuthor()))
+                if(loggedInUser.equals(p.getAuthor().getUsername()))
                 {
                     Toast.makeText(ReadPostActivity.this,"Ne mozete da dislajkujete svoju objavu",Toast.LENGTH_SHORT).show();
                 }else
@@ -225,7 +228,7 @@ public class ReadPostActivity extends AppCompatActivity {
                         values.put(PostDb.KEY_DESCRIPTION, p.getDescription());
                         values.put(PostDb.KEY_PHOTO, imageInByte);
                         values.put(PostDb.KEY_AUTHOR, p.getAuthor().getUsername());
-                        values.put(PostDb.KEY_DATE, p.getDate().toString());
+                        values.put(PostDb.KEY_DATE, datum);
                         values.put(PostDb.KEY_LOCATION, p.getLocation());
                         values.put(PostDb.KEY_DISLIKES, p.getDislikes());
                         values.put(PostDb.KEY_LIKES, p.getLikes());
@@ -242,7 +245,7 @@ public class ReadPostActivity extends AppCompatActivity {
                     values.put(PostDb.KEY_DESCRIPTION, p.getDescription());
                     values.put(PostDb.KEY_PHOTO, imageInByte);
                     values.put(PostDb.KEY_AUTHOR, p.getAuthor().getUsername());
-                    values.put(PostDb.KEY_DATE, p.getDate().toString());
+                    values.put(PostDb.KEY_DATE, datum);
                     values.put(PostDb.KEY_LOCATION, p.getLocation());
                     values.put(PostDb.KEY_DISLIKES, p.getDislikes());
                     values.put(PostDb.KEY_LIKES, p.getLikes());
@@ -272,6 +275,11 @@ public class ReadPostActivity extends AppCompatActivity {
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
+        View hView =  navigationView.getHeaderView(0);
+        TextView nav_user = (TextView)hView.findViewById(R.id.loggedInUser);
+        nav_user.setText(loggedInUser);
+        ImageView profile = (ImageView)hView.findViewById(R.id.avatar);
+        profile.setImageBitmap(image);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -350,8 +358,23 @@ public class ReadPostActivity extends AppCompatActivity {
                 com.setId(cc.getInt(cc.getColumnIndex(CommentDb.KEY_ROWID)));
                 com.setTitle(cc.getString(cc.getColumnIndex(CommentDb.KEY_TITLE)));
                 com.setDescription(cc.getString(cc.getColumnIndex(CommentDb.KEY_DESCRIPTION)));
-                com.setAuthor(cc.getString(cc.getColumnIndex(CommentDb.KEY_AUTHOR)));
-                com.setDate(cc.getString(cc.getColumnIndex(CommentDb.KEY_DATE)));
+                for(User u : users)
+                {
+                    if(u.getUsername().equals(cc.getString(cc.getColumnIndex(CommentDb.KEY_AUTHOR))))
+                    {
+                        com.setAuthor(u);
+                        break;
+                    }
+                }
+                String datum = cc.getString(cc.getColumnIndex(CommentDb.KEY_DATE));
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+                Date date=null;
+                try {
+                    date = formatter.parse(datum);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                com.setDate(date);
                 com.setPost(cc.getInt(cc.getColumnIndex(CommentDb.KEY_POST)));
                 com.setLikes(cc.getInt(cc.getColumnIndex(CommentDb.KEY_LIKES)));
                 com.setDislikes(cc.getInt(cc.getColumnIndex(CommentDb.KEY_DISLIKES)));

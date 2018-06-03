@@ -22,8 +22,11 @@ import com.example.mj.projekat.model.Tag;
 import com.example.mj.projekat.model.User;
 
 import java.io.ByteArrayOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class CommentActivity extends AppCompatActivity {
@@ -73,6 +76,22 @@ public class CommentActivity extends AppCompatActivity {
             lista.setAdapter(adapter);
         }
 
+        getUsers();
+
+        addCom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent i = new Intent(CommentActivity.this,CreateCommentActivity.class);
+                i.putExtra("postId",postId);
+                startActivity(i);
+            }
+        });
+
+    }
+
+    public Cursor getUsers()
+    {
         Cursor cu = getContentResolver().query(MyContentProvider.CONTENT_URI,null,null,null,null);
 
         if(cu.moveToFirst())
@@ -89,20 +108,7 @@ public class CommentActivity extends AppCompatActivity {
                 users.add(u);
             }while (cu.moveToNext());
         }
-
-        //adapter = new commentAdapter(getApplicationContext(),komentari,users,loggedInUser);
-        //lista.setAdapter(adapter);
-
-        addCom.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent i = new Intent(CommentActivity.this,CreateCommentActivity.class);
-                i.putExtra("postId",postId);
-                startActivity(i);
-            }
-        });
-
+        return cu;
     }
 
     @Override
@@ -116,6 +122,7 @@ public class CommentActivity extends AppCompatActivity {
 
     public Cursor getComment()
     {
+        getUsers();
         Cursor cc = getContentResolver().query(MyContentProvider.CONTENT_URI4,null,null,null,null);
 
         if(cc.moveToFirst())
@@ -125,8 +132,23 @@ public class CommentActivity extends AppCompatActivity {
                 com.setId(cc.getInt(cc.getColumnIndex(CommentDb.KEY_ROWID)));
                 com.setTitle(cc.getString(cc.getColumnIndex(CommentDb.KEY_TITLE)));
                 com.setDescription(cc.getString(cc.getColumnIndex(CommentDb.KEY_DESCRIPTION)));
-                com.setAuthor(cc.getString(cc.getColumnIndex(CommentDb.KEY_AUTHOR)));
-                com.setDate(cc.getString(cc.getColumnIndex(CommentDb.KEY_DATE)));
+                for(User u : users)
+                {
+                    if(u.getUsername().equals(cc.getString(cc.getColumnIndex(CommentDb.KEY_AUTHOR))))
+                    {
+                        com.setAuthor(u);
+                        break;
+                    }
+                }
+                String datum = cc.getString(cc.getColumnIndex(CommentDb.KEY_DATE));
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+                Date date=null;
+                try {
+                    date = formatter.parse(datum);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                com.setDate(date);
                 com.setPost(cc.getInt(cc.getColumnIndex(CommentDb.KEY_POST)));
                 com.setLikes(cc.getInt(cc.getColumnIndex(CommentDb.KEY_LIKES)));
                 com.setDislikes(cc.getInt(cc.getColumnIndex(CommentDb.KEY_DISLIKES)));
