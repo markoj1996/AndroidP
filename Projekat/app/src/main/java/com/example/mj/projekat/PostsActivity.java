@@ -327,7 +327,7 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
         sort = sharedPref2.getString("sort","");
 
         SharedPreferences sharedPref3 = getSharedPreferences("datum",MODE_PRIVATE);
-        datum = sharedPref3.getString("datum","");
+        datum = sharedPref3.getString("datum","Datum: 1/1/2018");
 
         String date = datum.split(" ")[1];
 
