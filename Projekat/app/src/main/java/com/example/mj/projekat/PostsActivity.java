@@ -86,7 +86,7 @@ public class PostsActivity extends AppCompatActivity implements LoaderManager.Lo
         userName = sharedPref.getString("userName","");
 
         final SharedPreferences sharedPref2 = getSharedPreferences("datum",MODE_PRIVATE);
-        datum = sharedPref2.getString("datum","");
+        datum = sharedPref2.getString("datum","Datum 1/1/2018");
 
         String date = datum.split(" ")[1];
 
