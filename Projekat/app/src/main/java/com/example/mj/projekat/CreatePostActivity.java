@@ -268,13 +268,13 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
 
                 // check for blanks
                 if(myTitle.trim().equalsIgnoreCase("")){
-                    Toast.makeText(getBaseContext(), "Please ENTER title", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "Unesite naslov", Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 // check for blanks
                 if(myDesc.trim().equalsIgnoreCase("")){
-                    Toast.makeText(getBaseContext(), "Please ENTER description", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "Unesite deskripciju", Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -282,7 +282,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
 
                 // check for blanks
                 if(tagovi.trim().equalsIgnoreCase("")){
-                    Toast.makeText(getBaseContext(), "Please ENTER tags", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "Unesite tagove", Toast.LENGTH_LONG).show();
                     return;
                 }
                 Bitmap image = null;
@@ -290,7 +290,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                     image = ((BitmapDrawable)postImage.getDrawable()).getBitmap();
                 }catch (RuntimeException c)
                 {
-                    Toast.makeText(getBaseContext(), "Please ENTER photo", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "Izaberite sliku", Toast.LENGTH_LONG).show();
                     return;
                 }
 

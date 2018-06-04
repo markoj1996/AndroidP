@@ -56,19 +56,19 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.button2:
                 // check for blanks
                 if(myname.trim().equalsIgnoreCase("")){
-                    Toast.makeText(getBaseContext(), "Please ENTER name", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "Unesite ime", Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 // check for blanks
                 if(myuname.trim().equalsIgnoreCase("")){
-                    Toast.makeText(getBaseContext(), "Please ENTER user name", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "Unesite korisnicko ime", Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 // check for blanks
                 if(mypass.trim().equalsIgnoreCase("")){
-                    Toast.makeText(getBaseContext(), "Please ENTER password", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "Unesite password", Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -77,7 +77,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     userImage = ((BitmapDrawable)image.getDrawable()).getBitmap();
                 }catch (RuntimeException c)
                 {
-                    Toast.makeText(getBaseContext(), "Please ENTER photo", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "Izaberite sliku", Toast.LENGTH_LONG).show();
                     return;
                 }
 

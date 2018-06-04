@@ -92,6 +92,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
                         i.putExtra("photoinbyte",imageInByte);
                         startActivity(i);
                         onBackPressed();
+                        finish();
                         break;
                     }
                     m="Pogresan username ili password";
